@@ -1,0 +1,56 @@
+<project default="jar">
+  <property name="build.sysclasspath" value="ignore"/>
+  
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+  
+  <target name="compile" unless="skip.compile">
+    <mkdir dir="build/classes" />
+    <javac srcdir="src" destdir="build/classes" debug="on"/>
+  </target>
+  
+  <target name="jar" depends="compile" unless="skip.jar">
+    <jar file="build/hello.jar">
+      <fileset dir="build/classes"/>
+    </jar>
+  </target>
+  
+  <target name="test-compile">
+    <mkdir dir="build/test-classes" />
+    <javac srcdir="test" destdir="build/test-classes">
+      <classpath>
+        <pathelement path="lib/junit.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test" depends="compile,test-compile">
+    <mkdir dir="build/test-reports"/>
+    <junit printsummary="yes" haltonfailure="yes">
+      <classpath>
+        <fileset dir="lib" includes="*.jar" />
+        <pathelement path="build/test-classes" />
+      </classpath>
+      <formatter type="xml"/>
+      <formatter type="plain"/>
+      <batchtest fork="yes" todir="build/test-reports">
+        <fileset dir="test">
+          <include name="**/*Test*.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="findbugs" depends="jar">
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+      <classpath>
+        <fileset dir="lib/findbugs/lib" includes="*.jar"/>
+      </classpath>
+    </taskdef>
+    <findbugs home="lib/findbugs" output="xml" outputFile="build/findbugs.xml">
+      <sourcePath path="src"/>
+      <class location="build/hello.jar"/>
+    </findbugs>
+  </target>
+</project>
