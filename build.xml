@@ -1,5 +1,9 @@
-<project default="jar">
+<project default="jar" xmlns:jacoco="antlib:org.jacoco.ant">
   <property name="build.sysclasspath" value="ignore"/>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="lib/jacoco/jacocoant.jar"/>
+  </taskdef>
   
   <target name="clean">
     <delete dir="build"/>
@@ -27,19 +31,21 @@
 
   <target name="test" depends="compile,test-compile">
     <mkdir dir="build/test-reports"/>
-    <junit printsummary="yes" haltonfailure="yes">
-      <classpath>
-        <fileset dir="lib" includes="*.jar" />
-        <pathelement path="build/test-classes" />
-      </classpath>
-      <formatter type="xml"/>
-      <formatter type="plain"/>
-      <batchtest fork="yes" todir="build/test-reports">
-        <fileset dir="test">
-          <include name="**/*Test*.java"/>
-        </fileset>
-      </batchtest>
-    </junit>
+    <jacoco:coverage enabled="${jacoco}" destfile="build/jacoco.exec">
+      <junit printsummary="yes" haltonfailure="yes" fork="true" forkmode="once">
+        <classpath>
+          <fileset dir="lib" includes="*.jar" />
+          <pathelement path="build/test-classes" />
+        </classpath>
+        <formatter type="xml"/>
+        <formatter type="plain"/>
+        <batchtest fork="yes" todir="build/test-reports">
+          <fileset dir="test">
+            <include name="**/*Test*.java"/>
+          </fileset>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
   </target>
 
   <target name="findbugs" depends="jar">
@@ -52,5 +58,9 @@
       <sourcePath path="src"/>
       <class location="build/hello.jar"/>
     </findbugs>
+  </target>
+
+  <target name="jacoco">
+    <property name="jacoco" value="true"/>
   </target>
 </project>
