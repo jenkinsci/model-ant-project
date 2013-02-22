@@ -24,6 +24,7 @@
     <mkdir dir="build/test-classes" />
     <javac srcdir="test" destdir="build/test-classes">
       <classpath>
+        <pathelement path="build/classes"/>
         <pathelement path="lib/junit.jar"/>
       </classpath>
     </javac>
@@ -35,6 +36,7 @@
       <junit printsummary="yes" haltonfailure="yes" fork="true" forkmode="once">
         <classpath>
           <fileset dir="lib" includes="*.jar" />
+          <pathelement path="build/classes" />
           <pathelement path="build/test-classes" />
         </classpath>
         <formatter type="xml"/>
@@ -62,5 +64,22 @@
 
   <target name="jacoco">
     <property name="jacoco" value="true"/>
+  </target>
+
+  <target name="jacoco-report" depends="test">
+    <jacoco:report>
+      <executiondata>
+        <file file="build/jacoco.exec"/>
+      </executiondata>
+      <structure name="Test Project">
+        <classfiles>
+          <fileset dir="build/classes"/>
+        </classfiles>
+        <sourcefiles>
+          <fileset dir="src"/>
+        </sourcefiles>
+      </structure>
+      <html destdir="build/jacoco-report"/>
+    </jacoco:report>
   </target>
 </project>
